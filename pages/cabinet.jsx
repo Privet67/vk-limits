@@ -119,7 +119,10 @@ fetch('/api/get-products')
     return (
       <div style={{
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)',
+        bbackground: `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.9)), url("https://raw.githubusercontent.com/Privet67/vk-limits/main/background.jpg")`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         color: 'white', fontFamily: 'Arial', fontSize: 20
       }}>
