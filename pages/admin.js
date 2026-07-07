@@ -25,7 +25,7 @@ export default function Admin() {
     const { data, error } = await supabase
       .from('subscriptions')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('id', { ascending: false });
 
     if (data) {
       setSubscriptions(data);
