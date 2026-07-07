@@ -30,14 +30,13 @@ export default function Cabinet() {
         setLoading(false);
       });
 
-    // Загружаем товары
-    supabase
-      .from('products')
-      .select('*')
-      .eq('in_stock', true)
-      .then(({ data }) => {
-        if (data) setProducts(data);
-      });
+// Загружаем товары через API
+fetch('/api/get-products')
+  .then(r => r.json())
+  .then(data => {
+    if (data) setProducts(data);
+  })
+  .catch(err => console.error('Error loading products:', err));
 
     // Загружаем историю покупок
     supabase
