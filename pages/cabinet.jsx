@@ -30,13 +30,13 @@ export default function Cabinet() {
         setLoading(false);
       });
 
-// Загружаем товары через API
-fetch('/api/get-products')
-  .then(r => r.json())
-  .then(data => {
-    if (data) setProducts(data);
-  })
-  .catch(err => console.error('Error loading products:', err));
+    // Загружаем товары через API
+    fetch('/api/get-products')
+      .then(r => r.json())
+      .then(data => {
+        if (data) setProducts(data);
+      })
+      .catch(err => console.error('Error loading products:', err));
 
     // Загружаем историю покупок
     supabase
@@ -72,7 +72,7 @@ fetch('/api/get-products')
 
     if (result.success) {
       setSubscription({ ...subscription, remaining_limit: result.new_limit });
-      showNotification(`Куплено: ${result.product_name} | Остаток: ${result.new_limit} ₽`, 'success');
+      showNotification(`✅ ${result.product_name} | Остаток: ${result.new_limit} ₽`, 'success');
       
       // Обновляем историю
       const supabase = createClient(
@@ -86,7 +86,7 @@ fetch('/api/get-products')
         .order('created_at', { ascending: false });
       if (data) setOrders(data);
     } else {
-      showNotification(result.error, 'error');
+      showNotification(`❌ ${result.error}`, 'error');
     }
 
     setBuying(null);
@@ -119,10 +119,7 @@ fetch('/api/get-products')
     return (
       <div style={{
         minHeight: '100vh',
-        bbackground: `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.9)), url("https://raw.githubusercontent.com/Privet67/vk-limits/main/background.jpg")`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed',
+        background: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         color: 'white', fontFamily: 'Arial', fontSize: 20
       }}>
@@ -135,12 +132,18 @@ fetch('/api/get-products')
     ? Math.round((subscription.remaining_limit / subscription.total_limit) * 100)
     : 0;
 
+  // ЗАМЕНИТЕ ЭТУ ССЫЛКУ на вашу ссылку изображения
+  const backgroundImageUrl = 'https://raw.githubusercontent.com/Privet67/vk-limits/main/background.jpg';
+
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)',
+      background: `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.9)), url("${backgroundImageUrl}")`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundAttachment: 'fixed',
       fontFamily: 'Arial, sans-serif',
-      color: 'white',
+      color: '#333',
       padding: 0,
       margin: 0
     }}>
@@ -162,7 +165,7 @@ fetch('/api/get-products')
           boxShadow: '0 10px 40px rgba(0,0,0,0.3)',
           animation: 'slideDown 0.3s ease'
         }}>
-          {notification.type === 'success' ? '✅' : '❌'} {notification.message}
+          {notification.message}
         </div>
       )}
 
@@ -189,10 +192,10 @@ fetch('/api/get-products')
 
           <div style={{ position: 'relative', zIndex: 1 }}>
             <div style={{ fontSize: 14, opacity: 0.8, marginBottom: 5 }}>💳 КАРТА ПОДПИСКИ</div>
-            <div style={{ fontSize: 48, fontWeight: 'bold', marginBottom: 5 }}>
+            <div style={{ fontSize: 48, fontWeight: 'bold', marginBottom: 5, color: 'white' }}>
               {subscription.remaining_limit.toLocaleString()} ₽
             </div>
-            <div style={{ fontSize: 16, opacity: 0.7, marginBottom: 20 }}>
+            <div style={{ fontSize: 16, opacity: 0.7, marginBottom: 20, color: 'white' }}>
               из {subscription.total_limit.toLocaleString()} ₽
             </div>
 
@@ -207,7 +210,7 @@ fetch('/api/get-products')
                 transition: 'width 0.5s ease'
               }} />
             </div>
-            <div style={{ fontSize: 13, opacity: 0.7, marginTop: 8, textAlign: 'right' }}>
+            <div style={{ fontSize: 13, opacity: 0.7, marginTop: 8, textAlign: 'right', color: 'white' }}>
               Осталось {percent}%
             </div>
           </div>
@@ -219,9 +222,10 @@ fetch('/api/get-products')
             onClick={() => setShowOrders(false)}
             style={{
               flex: 1, padding: '14px 20px', border: 'none', borderRadius: 14,
-              background: !showOrders ? 'rgba(102, 126, 234, 0.3)' : 'rgba(255,255,255,0.05)',
-              color: 'white', fontSize: 16, fontWeight: 'bold', cursor: 'pointer',
-              border: !showOrders ? '1px solid rgba(102, 126, 234, 0.5)' : '1px solid transparent'
+              background: !showOrders ? 'rgba(102, 126, 234, 0.3)' : 'rgba(0,0,0,0.05)',
+              color: !showOrders ? 'white' : '#333',
+              fontSize: 16, fontWeight: 'bold', cursor: 'pointer',
+              border: !showOrders ? '1px solid rgba(102, 126, 234, 0.5)' : '1px solid rgba(0,0,0,0.1)'
             }}
           >
             🛍️ Товары ({products.length})
@@ -230,9 +234,10 @@ fetch('/api/get-products')
             onClick={() => setShowOrders(true)}
             style={{
               flex: 1, padding: '14px 20px', border: 'none', borderRadius: 14,
-              background: showOrders ? 'rgba(102, 126, 234, 0.3)' : 'rgba(255,255,255,0.05)',
-              color: 'white', fontSize: 16, fontWeight: 'bold', cursor: 'pointer',
-              border: showOrders ? '1px solid rgba(102, 126, 234, 0.5)' : '1px solid transparent'
+              background: showOrders ? 'rgba(102, 126, 234, 0.3)' : 'rgba(0,0,0,0.05)',
+              color: showOrders ? 'white' : '#333',
+              fontSize: 16, fontWeight: 'bold', cursor: 'pointer',
+              border: showOrders ? '1px solid rgba(102, 126, 234, 0.5)' : '1px solid rgba(0,0,0,0.1)'
             }}
           >
             📋 История ({orders.length})
@@ -245,10 +250,10 @@ fetch('/api/get-products')
             {products.length === 0 ? (
               <div style={{
                 textAlign: 'center', padding: 60,
-                background: 'rgba(255,255,255,0.05)', borderRadius: 20
+                background: 'rgba(0,0,0,0.05)', borderRadius: 20
               }}>
                 <div style={{ fontSize: 48, marginBottom: 15 }}>📦</div>
-                <div style={{ fontSize: 18, opacity: 0.6 }}>Товары пока не добавлены</div>
+                <div style={{ fontSize: 18, color: '#666' }}>Товары пока не добавлены</div>
               </div>
             ) : (
               <div style={{ display: 'grid', gap: 15 }}>
@@ -256,21 +261,21 @@ fetch('/api/get-products')
                   const canBuy = subscription.remaining_limit >= product.price;
                   return (
                     <div key={product.id} style={{
-                      background: 'rgba(255,255,255,0.07)',
+                      background: 'rgba(255,255,255,0.9)',
                       borderRadius: 18, padding: 22,
                       display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                      border: '1px solid rgba(255,255,255,0.1)',
+                      border: '1px solid rgba(0,0,0,0.1)',
                       animation: `fadeIn ${0.3 + i * 0.1}s ease`,
-                      backdropFilter: 'blur(10px)'
+                      backdropFilter: 'blur(10px)',
+                      boxShadow: '0 5px 15px rgba(0,0,0,0.1)'
                     }}>
                       <div>
-                        <div style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 5 }}>
+                        <div style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 5, color: '#333' }}>
                           {product.name}
                         </div>
                         <div style={{
                           fontSize: 22, fontWeight: 'bold',
-                          background: 'linear-gradient(135deg, #00d2ff, #928dab)',
-                          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'
+                          color: '#667eea'
                         }}>
                           {product.price.toLocaleString()} ₽
                         </div>
@@ -281,8 +286,8 @@ fetch('/api/get-products')
                         style={{
                           background: canBuy
                             ? 'linear-gradient(135deg, #00b09b, #96c93d)'
-                            : 'rgba(255,255,255,0.1)',
-                          color: canBuy ? 'white' : 'rgba(255,255,255,0.3)',
+                            : 'rgba(0,0,0,0.1)',
+                          color: canBuy ? 'white' : 'rgba(0,0,0,0.3)',
                           padding: '14px 28px', border: 'none', borderRadius: 14,
                           fontSize: 16, fontWeight: 'bold', cursor: canBuy ? 'pointer' : 'not-allowed',
                           transition: 'all 0.3s ease',
@@ -305,25 +310,26 @@ fetch('/api/get-products')
             {orders.length === 0 ? (
               <div style={{
                 textAlign: 'center', padding: 60,
-                background: 'rgba(255,255,255,0.05)', borderRadius: 20
+                background: 'rgba(0,0,0,0.05)', borderRadius: 20
               }}>
                 <div style={{ fontSize: 48, marginBottom: 15 }}>🛒</div>
-                <div style={{ fontSize: 18, opacity: 0.6 }}>Покупок пока нет</div>
+                <div style={{ fontSize: 18, color: '#666' }}>Покупок пока нет</div>
               </div>
             ) : (
               <div style={{ display: 'grid', gap: 12 }}>
                 {orders.map((order, i) => (
                   <div key={order.id} style={{
-                    background: 'rgba(255,255,255,0.07)', borderRadius: 14, padding: 18,
+                    background: 'rgba(255,255,255,0.9)', borderRadius: 14, padding: 18,
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    animation: `fadeIn ${0.3 + i * 0.1}s ease`
+                    border: '1px solid rgba(0,0,0,0.1)',
+                    animation: `fadeIn ${0.3 + i * 0.1}s ease`,
+                    boxShadow: '0 3px 10px rgba(0,0,0,0.1)'
                   }}>
                     <div>
-                      <div style={{ fontWeight: 'bold', fontSize: 16 }}>
+                      <div style={{ fontWeight: 'bold', fontSize: 16, color: '#333' }}>
                         {order.products?.name || `Товар #${order.product_id}`}
                       </div>
-                      <div style={{ fontSize: 13, opacity: 0.5, marginTop: 4 }}>
+                      <div style={{ fontSize: 13, color: '#999', marginTop: 4 }}>
                         {new Date(order.created_at).toLocaleDateString('ru-RU', {
                           day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
                         })}
@@ -344,7 +350,7 @@ fetch('/api/get-products')
         {/* Подвал */}
         <div style={{
           textAlign: 'center', padding: '40px 0 20px',
-          fontSize: 13, opacity: 0.3
+          fontSize: 13, color: '#999'
         }}>
           Система подписок • vk-limits
         </div>
