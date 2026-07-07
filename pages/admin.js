@@ -6,6 +6,11 @@ export default function Admin() {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
   const [editAmount, setEditAmount] = useState('');
+  
+  // Состояния для авторизации
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState('');
+  const [authError, setAuthError] = useState('');
 
   useEffect(() => {
     loadSubscriptions();
@@ -34,14 +39,12 @@ export default function Admin() {
       process.env.NEXT_PUBLIC_SUPABASE_KEY
     );
 
-    // Находим текущую подписку
     const sub = subscriptions.find(s => s.vk_id === vkId);
     
     const newTotal = (sub ? sub.total_limit : 0) + parseInt(amount);
     const newRemaining = (sub ? sub.remaining_limit : 0) + parseInt(amount);
 
     if (sub) {
-      // Обновляем существующую
       await supabase
         .from('subscriptions')
         .update({
@@ -51,7 +54,6 @@ export default function Admin() {
         })
         .eq('vk_id', vkId);
     } else {
-      // Создаём новую
       await supabase
         .from('subscriptions')
         .insert({
@@ -83,11 +85,89 @@ export default function Admin() {
     loadSubscriptions();
   };
 
-  if (loading) return <div style={{padding: 20}}>Загрузка...</div>;
+  // Функция проверки пароля
+  const checkPassword = async () => {
+    const res = await fetch('/api/check-admin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password })
+    });
+    
+    if (res.ok) {
+      setIsAuthenticated(true);
+      setAuthError('');
+    } else {
+      setAuthError('Неверный пароль');
+    }
+  };
+
+  // Если не авторизован — показываем форму входа
+  if (!isAuthenticated) {
+    return (
+      <div style={{ 
+        padding: 40, 
+        fontFamily: 'Arial', 
+        maxWidth: 400, 
+        margin: '100px auto',
+        textAlign: 'center'
+      }}>
+        <h1>🔐 Админ-панель</h1>
+        <p>Введите пароль для доступа</p>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Пароль"
+          onKeyPress={(e) => e.key === 'Enter' && checkPassword()}
+          style={{
+            padding: 12,
+            width: '100%',
+            marginBottom: 15,
+            fontSize: 16,
+            boxSizing: 'border-box'
+          }}
+        />
+        <button
+          onClick={checkPassword}
+          style={{
+            background: '#667eea',
+            color: 'white',
+            padding: '12px 20px',
+            border: 'none',
+            borderRadius: 5,
+            fontSize: 16,
+            cursor: 'pointer',
+            width: '100%'
+          }}
+        >
+          Войти
+        </button>
+        {authError && <p style={{ color: 'red', marginTop: 15 }}>{authError}</p>}
+      </div>
+    );
+  }
+
+  // Если авторизован — показываем админку
+  if (loading) return <div style={{padding: 20, fontFamily: 'Arial'}}>Загрузка...</div>;
 
   return (
     <div style={{ padding: 20, fontFamily: 'Arial', maxWidth: 1000, margin: '0 auto' }}>
-      <h1>🔧 Админ-панель</h1>
+      <div style={{ marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h1>🔧 Админ-панель</h1>
+        <button
+          onClick={() => setIsAuthenticated(false)}
+          style={{
+            background: '#f44336',
+            color: 'white',
+            padding: '8px 16px',
+            border: 'none',
+            borderRadius: 5,
+            cursor: 'pointer'
+          }}
+        >
+          Выйти
+        </button>
+      </div>
       
       <div style={{ marginBottom: 30, padding: 20, background: '#f5f5f5', borderRadius: 10 }}>
         <h3>📊 Статистика</h3>
@@ -129,14 +209,14 @@ export default function Admin() {
                       value={editAmount}
                       onChange={(e) => setEditAmount(e.target.value)}
                       placeholder="Сумма"
-                      style={{ padding: 5, marginRight: 5, width: 100 }}
+                      style={{ padding: 8, marginRight: 8, width: 100 }}
                     />
                     <button
                       onClick={() => updateLimit(sub.vk_id, editAmount)}
                       style={{ 
                         background: '#4CAF50',
                         color: 'white',
-                        padding: '5px 10px',
+                        padding: '8px 12px',
                         border: 'none',
                         borderRadius: 5,
                         marginRight: 5,
@@ -150,7 +230,7 @@ export default function Admin() {
                       style={{ 
                         background: '#f44336',
                         color: 'white',
-                        padding: '5px 10px',
+                        padding: '8px 12px',
                         border: 'none',
                         borderRadius: 5,
                         cursor: 'pointer'
@@ -166,7 +246,7 @@ export default function Admin() {
                       style={{ 
                         background: '#2196F3',
                         color: 'white',
-                        padding: '5px 10px',
+                        padding: '8px 12px',
                         border: 'none',
                         borderRadius: 5,
                         marginRight: 5,
@@ -180,7 +260,7 @@ export default function Admin() {
                       style={{ 
                         background: '#f44336',
                         color: 'white',
-                        padding: '5px 10px',
+                        padding: '8px 12px',
                         border: 'none',
                         borderRadius: 5,
                         cursor: 'pointer'
@@ -197,3 +277,10 @@ export default function Admin() {
       </table>
 
       {subscriptions.length === 0 && (
+        <p style={{ textAlign: 'center', color: '#999', padding: 40 }}>
+          Клиентов пока нет
+        </p>
+      )}
+    </div>
+  );
+}
